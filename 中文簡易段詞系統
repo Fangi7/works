@@ -1,0 +1,179 @@
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+struct tnode{
+        char key[100];
+        struct tnode *left;
+        struct tnode *right;
+};
+struct tnode *Tinsert(struct tnode*,char*,int);
+struct tnode *Tinsert(struct tnode *root,char tmp[],int termlen)
+{
+        struct tnode *p=NULL,*ptr=NULL,*last=NULL;
+        p=(struct tnode*)malloc(sizeof(struct tnode));
+        memcpy(p->key,tmp,termlen*2);
+        p->left=NULL;
+        p->right=NULL;
+        //      printf("3");
+        ptr=root;
+        while(ptr){
+                if(memcmp(tmp,ptr->key,termlen*2)>0){
+                        //                      printf("4");
+                        last=ptr;
+                        ptr=ptr->right;
+                        if(ptr==NULL){
+                                last->right=p;
+                                //              printf("insertright:#%d#%s\n",termlen,p->key);
+                                break;
+                                return root;
+                        }
+                }
+
+                else if(memcmp(tmp,ptr->key,termlen*2)<0){
+                        last=ptr;
+                        //                      printf("5");
+                        ptr=ptr->left;
+                        if(ptr==NULL){
+                                last->left=p;
+                                //              printf("insertleft:#%d#%s\n",termlen,p->key);
+                                break;
+                                return root;
+                        }
+                        break;
+                }
+                break;
+        }
+        //      printf("6");
+        return root;
+}
+
+void Hinsert(char*,struct tnode **,int);
+void Hinsert(char*tmp,struct tnode *Htable[],int termlen){
+        struct tnode *p=NULL;
+        if(Htable[termlen]==NULL){
+                p=(struct tnode*)malloc(sizeof(struct tnode));
+                memcpy(p->key,tmp,termlen*2);
+                Htable[termlen]=p;
+                //              printf("Hash:%s#%d#\n",tmp,termlen);
+                //              printf("1");
+        }
+        else{
+                Htable[termlen]=Tinsert(Htable[termlen],tmp,termlen);
+                //              printf("2");
+                return;
+
+        }
+}
+
+void getterm(char*,struct tnode**,int);
+void getterm(char *line,struct tnode *Htable[],int termlen)
+{
+        char tmp[10]={0};
+        char *lptr;
+        struct tnode *ptr;
+        int i=0;
+        int j=0;
+        if(termlen==0) return;
+        ptr=Htable[termlen];
+        lptr=line;
+        j=termlen;
+        while(j--){
+                if((*lptr)<0 && *lptr!=' ' && *lptr!='\0'&& *lptr!='\n' && lptr && *lptr){
+                        tmp[i]=*lptr;
+                        i++;
+                        lptr++;
+                        tmp[i]=*lptr;
+                        i++;
+                        lptr++;
+
+                }
+                //      else {printf("%c",lptr);}
+        }
+        while(ptr){
+                if(memcmp(tmp,ptr->key,termlen*2)>0){
+                        ptr=ptr->right;
+                        if(ptr==NULL){
+                                getterm(lptr,Htable,termlen-1);
+                                break;
+                                return ;
+                        }
+                }
+                else if(memcmp(tmp,ptr->key,termlen*2)<0){
+                        ptr=ptr->left;
+                        if(ptr==NULL){
+                                getterm(lptr,Htable,termlen-1);
+                                break;
+                                return ;
+                        }
+                }
+                else printf("%s",tmp);
+                break;
+                return;
+        }
+        return ;
+
+}
+int main(int argc,char *argv[])
+{
+        int i=0;
+        char tmp[30]={0};
+        char *ptr=NULL;
+        char line[35];
+        int length=0;
+        struct tnode *Htable[30];
+        FILE *fp=NULL;
+
+        //init Htable
+        for(i=0; i<30; i++)
+        {
+                Htable[i]=NULL;
+        }
+        //store dic
+        fp=fopen(argv[1],"r");
+        while(fgets(line,30,fp)!=NULL){
+                //      puts(line);
+                //                      printf("%d",line[0]);
+                ptr=line;
+                i=0;length=0;
+                while((*ptr)<0 && *ptr!=' ' && *ptr!='\0'&& *ptr!='\n' && ptr && *ptr){
+                        tmp[i]=*ptr;
+                        ptr++;
+                        i++;
+                        tmp[i]=*ptr;
+                        ptr++;
+                        i++;
+                        length++;
+                }
+                tmp[i]='\0';
+                //              printf("std:#%d#%s\n",length,tmp);
+
+                if(length>0){
+                        Hinsert(tmp,Htable,length);
+                }
+        }
+        //              printf("[%c%c]",tmp[0],tmp[1]);
+        //      printf("[%d %d]END",tmp[0],tmp[1]);
+
+
+
+        //handle file
+
+        fclose(fp);
+
+        if(argc!=3){
+                while(fgets(line,30,stdin)!=NULL){
+                        getterm(line,Htable,15);
+                }
+        }
+        else{
+                fp=fopen(argv[2],"r");
+                while(fgets(line,30,fp)!=NULL){
+                        getterm(line,Htable,15);
+                }
+                fclose(fp);
+        }
+
+        //free
+        return 0;
+
+}
