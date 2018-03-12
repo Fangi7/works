@@ -1,0 +1,55 @@
+#include<stdio.h>
+#include<stdlib.h>
+int shortPath(int min,int sum,int n,int w[][n+1],int start,int end)
+{
+	int j=1;
+
+	for(j=1;j<n+1;j++){
+		if(w[start][j]!=0){
+			//		sum+=w[start][j];
+			//		start=j;
+			min=shortPath(min,sum+w[start][j],n,w,j,end);
+		}
+	}
+	if(start==end){
+//		printf("min=%d sum=%d\n",min,sum);
+		if(sum>0 && sum<min){ 
+			min=sum;
+//			printf("HI");
+		}
+		//  printf("min=%d sum=%d\n",min,sum);
+		return min;
+	}
+	return min;
+}
+int main(){
+	int n=0;
+	int i,j;
+	FILE *fp;
+	fp=fopen("1input.txt","r");
+
+	fscanf(fp,"%d",&n); //n*n matrix
+	int w[n+1][n+1];
+	// store the graph
+	for(i=1;i<n+1;i++)
+		for(j=1;j<n+1;j++){
+			fscanf(fp,"%d",&w[i][j]);
+			//		printf("%d ",w[i][j]);
+		}
+	fclose(fp);
+	int start,end;
+	fp=fopen("result1.txt","a");
+	printf("Enter two vertices<start end>:");
+	fprintf(fp,"Enter two vertices<start end>:");
+	scanf("%d %d",&start,&end);
+	fprintf(fp,"%d %d\n",start,end);
+	//find shortest path
+	int min=1e9;
+	int sum=0;
+	min=shortPath(min,sum,n,w,start,end);
+	if(min==1e9) min=-1;
+	printf("The cost from %d to %d is : %d\n",start,end,min);
+	fprintf(fp,"The cost from %d to %d is : %d\n",start,end,min);
+fclose(fp);
+	return 0;
+}
