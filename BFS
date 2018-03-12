@@ -1,0 +1,64 @@
+#include<stdio.h>
+struct q{
+	int num;
+	int level;
+};
+int main(){
+	int n;
+	FILE *fp;
+	fp=fopen("3input.txt","r");
+	fscanf(fp,"%d",&n);
+	int graph[n+1][n+1];
+	int visit[n+1];
+	int i,j;
+
+	//claer
+	for(i=0;i<n+1;i++)
+		for(j=0;j<n+1;j++){
+			if(i==j) graph[i][j]=0;
+			else graph[i][j]=1;
+		}
+	for(i=0;i<n+1;i++) visit[i]=0;
+
+	//build matrix
+	int start;
+	int v1,v2;
+	n--;//edge = point-1
+	int m=n;
+
+	while(m--){
+		fscanf(fp,"%d",&v1);
+		fscanf(fp,"%d",&v2);
+		start=v2;
+		graph[v1][v2]=0;
+		graph[v2][v1]=0;
+	}
+	fclose(fp);
+	fp=fopen("result3.txt","a");
+	//BFS
+	int level=1;
+	struct q queue[n+2];
+	int f=0,l=0;
+	fprintf(fp,"Level Name\n");
+	fprintf(fp,"0 %d\n",start);
+	visit[start]=1;
+	queue[0].num=start;
+	queue[0].level=level;
+	l++;
+	while(l!=f){
+		for(i=1;i<n+2;i++){
+			if(graph[start][i]==1 && visit[i]==0){
+				fprintf(fp,"%d %d\n",queue[f].level,i);
+				queue[l].num=i;
+				queue[l].level=level+1;
+				l++;
+				visit[i]=1;
+			}
+		}
+		f++;
+		level++;
+		start=queue[f].num;
+	}
+fclose(fp);
+	return 0;
+}
