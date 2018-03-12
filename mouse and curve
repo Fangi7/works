@@ -1,0 +1,132 @@
+/*two team take cheese, queue and stack pratice*/
+
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+
+int main(){
+
+	int cave[2]={0,0}; //stack
+	int odd[4]={0,1,3,5}; //queue,mouse number
+	int even[4]={0,2,4,6}; //queue
+
+	int target=17;
+	printf("choose s round:");
+	scanf("%d",&target);
+	int round=1;//
+
+	int *top; //the top of cave
+	top=&cave[0];
+	int *oddf,*oddr;
+	oddf=&odd[1];
+	oddr=&odd[3];
+
+	int *evenf,*evenr;
+	evenf=&even[1];
+	evenr=&even[3];
+//round1,2
+	*top=*oddf;
+	*oddf=0;
+	oddf++;
+	round++;
+	top++;
+
+	*top=*evenf;
+	*evenf=0;
+	evenf++;
+	round++;
+	top++;
+	//print
+
+//round3~
+	while(round!=201)
+	{
+		//judge cave is full or not
+		if(top>&cave[1]) //pop the mouse
+		{
+			int i=1;
+			top=&cave[1];
+		for(i=1;i<=2;i++)
+			{
+				if((*top)%2==0){
+					even[0]+=i;
+					if(evenr==&even[3]){
+						evenr=&even[1];
+					}
+					else evenr++;
+					*evenr=*top;
+				}
+				else{
+					odd[0]+=i;
+					if(oddr==&odd[3]){
+						oddr=&odd[1];
+					}
+					else oddr++;
+					*oddr=*top;
+				}
+				*top=0;
+				top--;
+			}
+			top=cave;
+		}
+
+		//judge odd or even has more food
+		if(odd[0]>even[0]) //even go
+		{
+			*top=*evenf;
+			*evenf=0;
+			if(evenf!=&even[3]) evenf++;
+			else evenf=&even[1];
+			top++;
+		}
+		else //odd go
+		{
+			*top=*oddf;
+			*oddf=0;
+			if(oddf!=&odd[3])oddf++;
+			else oddf=&odd[1];
+			top++;
+		}
+		//printf target
+		if(round==target){
+			FILE *fp;
+			fp=fopen("result.txt","a");
+
+			fprintf(fp,"Round:  %d\n",round);
+			fprintf(fp,"Channel A food: %d\n",odd[0]);
+			fprintf(fp,"Channel B food: %d\n",even[0]);
+			fprintf(fp,"\n");
+			int *ptr;
+			fprintf(fp,"Cave:\n");
+			for(ptr=&cave[0]; ptr<=&cave[1]; ptr++)
+			{
+				if((*ptr)!=0)
+				{
+					fprintf(fp,"%d  ",*ptr);
+				}
+			}
+			fprintf(fp,"\n\nChannel A:\n");
+			for(ptr=oddf;; ptr++)
+			{
+				if(ptr>&odd[3]){
+					ptr=&odd[1];
+				}
+				fprintf(fp,"%d  ",*ptr);
+				if(ptr==oddr) break;
+			}
+			fprintf(fp,"\n");
+			fprintf(fp,"Channel B:\n");
+			for(ptr=evenf;; ptr++)
+			{
+				if(ptr>&even[3]){
+					ptr=&even[1];
+				}
+				fprintf(fp,"%d  ",*ptr);
+				if(ptr==evenr) break;
+			}
+			fprintf(fp,"\n\n");
+		}
+		round++;
+	}//while
+	return 0;
+}
