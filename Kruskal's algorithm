@@ -1,0 +1,123 @@
+#include<stdio.h>
+struct w{
+	int v1;
+	int v2;
+	int weight;
+};
+int cmp(const void *a,const void *b)
+{
+	return (*(struct w*)a).weight - (*(struct w*)b).weight;
+}
+int main(){
+	int n=0;
+	int i,j,m,k=1;
+	FILE *fp;
+	int l;
+
+	fp=fopen("2input.txt","r");
+
+	fscanf(fp,"%d",&n); //n*n matrix
+
+	int uni[n+1];
+
+	struct w edge[n*n];
+		for(i=0;i<n+1;i++) uni[i]=-1;
+	// store the graph
+	m=n;
+	while(m--) 	fscanf(fp,"%d",&edge[0].weight);
+
+	for(i=2;i<n+1;i++){
+		for(j=1;j<i;j++){
+			fscanf(fp,"%d",&edge[0].weight);
+			if(edge[0].weight!=0){
+				edge[k].weight=edge[0].weight;
+				edge[k].v1=i;
+				edge[k].v2=j;
+				//					printf("v1=%d v2=%d weight=%d\n",edge[k].v1,edge[k].v2,edge[k].weight);
+				k++;
+			}		
+		}
+		m=n-i+1;
+		while(m--) 	fscanf(fp,"%d",&edge[0].weight);
+	}
+	fclose(fp);
+	//sort
+	qsort(edge,k,sizeof(struct w),cmp);
+
+//	for(i=0;i<k;i++) printf("i=%d v1=%d v2=%d weight=%d\n",i,edge[i].v1,edge[i].v2,edge[i].weight);
+
+	//Kruskal
+	struct w MST[n+1];
+	//  k--;
+	j=1;
+	int tmp;
+	FILE *fp2;
+	fp=fopen("result2.txt","a");
+	fp2=fopen("3input.txt","a");
+	fprintf(fp2,"%d ",n);
+	for(i=1;i<k;i++){
+			//has cycle or not //v1,v2 in the same union or not
+			if(uni[edge[i].v1]==uni[edge[i].v2] && uni[edge[i].v1]>=0) continue;
+			else if(uni[edge[i].v1]<-1 && edge[i].v1==uni[edge[i].v2]) continue;
+			else if(uni[edge[i].v2]<-1 && edge[i].v2==uni[edge[i].v1]) continue;
+			MST[j].v1=edge[i].v1;
+			MST[j].v2=edge[i].v2;
+			MST[j].weight=edge[i].weight;
+			//merge two union
+			//case 1, two root
+			if(uni[MST[j].v1]<0 && uni[MST[j].v2]<0){
+				uni[MST[j].v1]+=uni[MST[j].v2];
+				uni[MST[j].v2]=MST[j].v1;
+				tmp=MST[j].v2;
+				for(m=1;m<k;m++){
+					if(uni[m]==tmp){
+						//				printf("m=%d uni[m]=%d\n",m,uni[m]);
+						uni[m]=MST[j].v1;
+					}
+				}
+			}
+			//case 2, one root
+			else if(uni[MST[j].v1]<0){
+				uni[MST[j].v1]+=uni[uni[MST[j].v2]];		//root--
+				uni[uni[MST[j].v2]]=MST[j].v1;
+				tmp=uni[MST[j].v2];
+				for(m=1;m<k;m++){
+					if(uni[m]==tmp) {
+						uni[m]=MST[j].v1;
+					}
+				}
+			}
+			else if(uni[MST[j].v2]<0){
+				uni[MST[j].v2]+=uni[uni[MST[j].v1]];        //root--
+				uni[uni[MST[j].v1]]=MST[j].v2;
+				tmp=uni[MST[j].v1];
+				for(m=1;m<k;m++){
+					if(uni[m]==tmp) {
+						uni[m]=MST[j].v2;
+					}
+				}
+			}
+			//case 3, no root
+			else{
+				uni[uni[MST[j].v1]]+=uni[uni[MST[j].v2]];
+				uni[uni[MST[j].v2]]=uni[MST[j].v1];
+				tmp=uni[MST[j].v2];
+				for(m=1;m<k;m++){
+					//			printf("MST%d ",uni[MST[j].v2]);
+					if(uni[m]==tmp) {
+						//				printf("(no)m=%d uni[m]=%d\n",m,uni[m]);
+						uni[m]=uni[MST[j].v1];
+
+					}
+				}
+			}
+			printf("Edge %d:i=%d <%d %d> cost:%d\n",j,i,MST[j].v2,MST[j].v1,MST[j].weight);
+			fprintf(fp,"Edge %d:<%d %d> cost:%d\n",j,MST[j].v2,MST[j].v1,MST[j].weight);
+			fprintf(fp2,"%d %d ",MST[j].v2,MST[j].v1);
+			j++;
+	//		for(l=1;l<n+1;l++) printf("uni[%d]=%d ",l,uni[l]);
+	//		printf("\n\n");
+	}
+	fclose(fp);
+	return 0;
+}
