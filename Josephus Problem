@@ -1,0 +1,136 @@
+/* 20171108 Doubly Linked list, Josephus Problem */
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+struct Link{
+	struct Link *left;
+	int num;
+	struct Link *next;
+};
+struct Link *last,*newp,*root;
+int count=0;
+void insert(int tmpNum){
+			//creat a new node
+			newp=(struct Link*)malloc(sizeof(struct Link));
+			if(count==0){ //is head
+				root=newp;
+				last=newp;
+			}
+			//link
+			newp->num=tmpNum;
+			newp->next=root;
+			root->left=newp;
+			newp->left=last;
+			last->next=newp;
+			last=newp;
+			count++;
+}
+void openFile(){
+	FILE *fp;
+	int tmpNum;
+	char line[100];
+	fp=fopen("a.txt","r");
+	while(fscanf(fp,"%d",&tmpNum)!=EOF){
+		//insert to the Linked list
+		insert(tmpNum);
+		printf("No.%d :%d\n",count,newp->num);
+	}
+	printf("The person in circular list are:\n");
+	int i;
+	struct Link *ptr;
+	ptr=root;
+	for(i=0;i<count;i++){
+		printf("%d ",ptr->num);
+		ptr=ptr->next;
+	}
+	printf("\n");
+}
+void inputNum(){
+	int tmpNum;
+	int target;
+	printf("How many numbers do you want to add?");
+	scanf("%d",&target);
+	int tmpCnt=1;
+	
+	while(1){
+		printf("NO.%d:",tmpCnt);
+		scanf("%d",&tmpNum);
+		//inert to the Linked list
+		insert(tmpNum);
+		if(tmpCnt==target) break;
+		tmpCnt++;
+	}
+	printf("The person in circular list are:\n");
+	int i;
+	struct Link *ptr;
+	ptr=root;
+//	count=target;
+	for(i=0;i<count;i++){
+		printf("%d ",ptr->num);
+		ptr=ptr->next;
+	}
+	printf("\n");
+
+}
+int delete(int skip,int dire){
+	struct Link *ptr;
+	int skiptmp;
+	ptr=root;
+	while(count!=1){
+		skiptmp=skip;
+		while(--skiptmp){
+			if(dire==2) ptr=ptr->next;
+			else if(dire==1) ptr=ptr->left;
+		}
+		//delete
+		ptr->next->left=ptr->left;
+		ptr->left->next=ptr->next;
+		if(dire==2){
+			ptr=ptr->next;
+			free(ptr->left);
+		}
+		else if(dire==1){
+			ptr=ptr->left;
+			free(ptr->next);
+		}
+		count--;
+	}
+
+	return ptr->num;
+}
+int main()
+{
+		printf("=======================================\n");
+		printf("=                                     =\n");
+		printf("= Which items do you want to choose?  =\n");
+		printf("= (1) Read numbers from a file.       =\n");
+		printf("= (2) Input new numbers               =\n");
+		printf("= (0) Quit                            =\n");
+		printf("=                                     =\n");
+		printf("=======================================\n");
+	int oper=0;
+	scanf("%d",&oper);
+	switch(oper){
+		case 1:
+			openFile();
+			break;
+		case 2:
+			inputNum();
+			break;
+		case 0:
+			return 0;
+	}
+	
+	int skip=0;
+	int dire=0;
+	int survive=0;
+	printf("Enter the number of persons to be skipped:");
+	scanf("%d",&skip);
+	printf("Which direction do you want to choose ? (1)Left (2)Right\n");
+	scanf("%d",&dire);
+	
+	survive=delete(skip,dire);
+	printf("The persom to survive is : %d\n",survive);
+
+	return 0;
+}
