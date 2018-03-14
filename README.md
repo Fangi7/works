@@ -1,5 +1,5 @@
 # works
 programming language: C
-program from:
-  Data Structure
-  Programming Design
+ program from:
+   Data Structure
+   Programming Design
